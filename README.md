@@ -1,6 +1,6 @@
 # Py Trees
 
-[[About](#about)] [[What's New?](#whats-new)] [[Documentation](#documentation)] [[Getting Started](#getting-started)] [[Next Steps](#next-steps)] [[Releases](#releases)] [[Developers](#developers)]
+[[About](#about)] [[What's New?](#whats-new)] [[Documentation](#documentation)] [[Getting Started](#getting-started)] [[Next Steps](#next-steps)] [[Releases](#releases)]
 
 ----
 
@@ -39,24 +39,24 @@ You can get started on CodeSpaces (with no mismatched environment issues and in 
 
 # Explore the demos
 (docker) zen@py_trees:/workspaces/py_trees$ poetry shell
-(py-trees-py3.8) (docker) zen@py_trees:/workspaces/py_trees$ py-trees-demo-<tab>-<tab>
+(py-trees-py3.10) (docker) zen@py_trees:/workspaces/py_trees$ py-trees-demo-<tab>-<tab>
 py-trees-demo-action-behaviour            py-trees-demo-context-switching           py-trees-demo-logging
 py-trees-demo-behaviour-lifecycle         py-trees-demo-display-modes               py-trees-demo-pick-up-where-you-left-off
 py-trees-demo-blackboard                  py-trees-demo-dot-graphs                  py-trees-demo-selector
 py-trees-demo-blackboard-namespaces       py-trees-demo-either-or                   py-trees-demo-sequence
 py-trees-demo-blackboard-remappings       py-trees-demo-eternal-guard               py-trees-demo-tree-stewardship
-(py-trees-py3.8) (docker) zen@py_trees:/workspaces/py_trees$ py-trees-demo-blackboard
+(py-trees-py3.10) (docker) zen@py_trees:/workspaces/py_trees$ py-trees-demo-blackboard
 ...
-(py-trees-py3.8) (docker) zen@py_trees:/workspaces/py_trees$ exit
+(py-trees-py3.10) (docker) zen@py_trees:/workspaces/py_trees$ exit
 
 # Hack some Code
 
 # Run the Formatter, Tests, Linters and Mypy
 (docker) zen@py_trees:/workspaces/py_trees$ poetry run tox -l
-py38 py310 format check mypy38 mypy310
+py310 py312 format check mypy310 mypy312
 (docker) zen@py_trees:/workspaces/py_trees$ poetry run tox -e format
 ...
-(docker) zen@py_trees:/workspaces/py_trees$ poetry run tox -e py38
+(docker) zen@py_trees:/workspaces/py_trees$ poetry run tox -e py310
 ...
 (docker) zen@py_trees:/workspaces/py_trees$ poetry run tox -e check
 ...
@@ -97,62 +97,16 @@ Robotics:
 | | Devel | 2.2.x | 2.1.x | 2.0.x | 1.2.x | 0.7.x | 0.6.x |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | Sources | [![devel][sources-devel-image]][sources-devel] | [![2.1.x][sources-2.2.x-image]][sources-2.2.x] | [![2.1.x][sources-2.1.x-image]][sources-2.1.x] | [![2.0.x][sources-2.0.x-image]][sources-2.0.x] | [![1.2.x][sources-1.2.x-image]][sources-1.2.x] | [![0.7.x][sources-0.7.x-image]][sources-0.7.x] | [![0.6.x][sources-0.6.x-image]][sources-0.6.x]
-| Compatibility | [![Python 3.10][python310-image]][python310-docs] [![Python 3.8][python38-image]][python38-docs] | [![Python 3.10][python310-image]][python310-docs] [![Python 3.8][python38-image]][python38-docs] | [![Python 3.6][python36-image]][python36-docs] | [![Python 3.6][python36-image]][python36-docs] | [![Python 3.6][python36-image]][python36-docs] | [![Python 3.6][python36-image]][python36-docs] | [![Python 2.7][python27-image]][python27-docs]
+| Compatibility | [![Python 3.12][python312-image]][python312-docs] [![Python 3.10][python310-image]][python310-docs] | [![Python 3.10][python310-image]][python310-docs] [![Python 3.8][python38-image]][python38-docs] | [![Python 3.6][python36-image]][python36-docs] | [![Python 3.6][python36-image]][python36-docs] | [![Python 3.6][python36-image]][python36-docs] | [![Python 3.6][python36-image]][python36-docs] | [![Python 2.7][python27-image]][python27-docs]
 | CI | [![devel-Status][devel-build-status-image]][devel-build-status] | [![2.2.x-Status][2.2.x-build-status-image]][2.2.x-build-status] | - | - | - | - | - | 
 | Documentation | [![devel-Docs][rtd-devel-image]][docs-devel] | [![2.2.x-Docs][rtd-2.2.x-image]][docs-2.2.x] | [![2.1.x-Docs][rtd-2.1.x-image]][docs-2.1.x] | [![2.0.x-Docs][rtd-2.0.x-image]][docs-2.0.x] | [![1.2.x-Docs][rtd-1.2.x-image]][docs-1.2.x] | [![0.7.x-Docs][rtd-0.7.x-image]][docs-0.7.x] | [![0.6.x-Docs][rtd-0.6.x-image]][docs-0.6.x]
 
-## Developers
-
-### Format, Check, MyPy, Test
-
-Check against at least one of py38 / py310 [1].
-
-```
-# Auto-format your code (if using VSCode, install the ufmt extension)
-$ poetry run tox -e format
-
-# Style, Format
-$ poetry run tox -e check
-
-# Type-Check
-$ poetry run mypy38
-
-# Tests
-$ poetry run tox -e py38
-```
-
-[1] CI will test against both python versions for you, but should you wish to do so locally, open up two VSCode windows, one with the project opened in the default [py38 devcontainer](.devcontainer) and the other with the [py310 devcontainer](.devcontainer/py310).
-
-### Generate Documentation
-
-Generate the docs, view them from `./docs/html` in a browser.
-
-```
-# Install dependencies
-$ poetry install --with docs
-
-# Build
-$ poetry run make -C docs html
-```
-
-On Doc dependency changes, export the requirements for ReadTheDocs
-
-```
-$ poetry export -f requirements.txt --with docs -o docs/requirements.txt
-```
-
-### Publish to PyPi
-
-If you have permission to publish on pypi:
-
-```
-$ poetry config http-basic.pypi ${POETRY_HTTP_BASIC_PYPI_USERNAME} ${POETRY_HTTP_BASIC_PYPI_PASSWORD}
-$ poetry publish
-```
 
 [license-image]: https://img.shields.io/badge/License-BSD%203--Clause-orange.svg?style=plastic
 [license]: LICENSE
 
+[python312-image]: https://img.shields.io/badge/python-3.12-green.svg?style=plastic
+[python312-docs]: https://docs.python.org/3.12/
 [python310-image]: https://img.shields.io/badge/python-3.10-green.svg?style=plastic
 [python310-docs]: https://docs.python.org/3.10/
 [python38-image]: https://img.shields.io/badge/python-3.8-green.svg?style=plastic
