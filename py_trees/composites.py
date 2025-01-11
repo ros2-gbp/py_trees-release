@@ -83,7 +83,7 @@ class Composite(behaviour.Behaviour, abc.ABC):
     def __init__(
         self,
         name: str,
-        children: typing.Optional[typing.List[behaviour.Behaviour]] = None,
+        children: typing.Optional[typing.Sequence[behaviour.Behaviour]] = None,
     ):
         super(Composite, self).__init__(name)
         if children is not None:
@@ -381,7 +381,7 @@ class Selector(Composite):
         self,
         name: str,
         memory: bool,
-        children: typing.Optional[typing.List[behaviour.Behaviour]] = None,
+        children: typing.Optional[typing.Sequence[behaviour.Behaviour]] = None,
     ):
         super(Selector, self).__init__(name, children)
         self.memory = memory
@@ -517,7 +517,7 @@ class Sequence(Composite):
         self,
         name: str,
         memory: bool,
-        children: typing.Optional[typing.List[behaviour.Behaviour]] = None,
+        children: typing.Optional[typing.Sequence[behaviour.Behaviour]] = None,
     ):
         super(Sequence, self).__init__(name, children)
         self.memory = memory
@@ -647,7 +647,7 @@ class Parallel(Composite):
         self,
         name: str,
         policy: common.ParallelPolicy.Base,
-        children: typing.Optional[typing.List[behaviour.Behaviour]] = None,
+        children: typing.Optional[typing.Sequence[behaviour.Behaviour]] = None,
     ):
         """
         Initialise the behaviour with name, policy and a list of children.
@@ -731,14 +731,11 @@ class Parallel(Composite):
                     new_status = common.Status.SUCCESS
                     self.current_child = self.children[-1]
             elif type(self.policy) is common.ParallelPolicy.SuccessOnOne:
-                successful = [
-                    child
-                    for child in self.children
-                    if child.status == common.Status.SUCCESS
-                ]
-                if successful:
-                    new_status = common.Status.SUCCESS
-                    self.current_child = successful[-1]
+                for child in reversed(self.children):
+                    if child.status == common.Status.SUCCESS:
+                        new_status = common.Status.SUCCESS
+                        self.current_child = child
+                        break
             elif type(self.policy) is common.ParallelPolicy.SuccessOnSelected:
                 if all(
                     [c.status == common.Status.SUCCESS for c in self.policy.children]
