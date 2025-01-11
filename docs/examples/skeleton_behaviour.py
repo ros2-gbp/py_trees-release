@@ -1,25 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Example showing how to create a skeleton behaviour."""
+
+import random
+import typing
 
 import py_trees
-import random
 
 
 class Foo(py_trees.behaviour.Behaviour):
-    def __init__(self, name):
+    """A skeleton behaviour that inherits from the PyTrees Behaviour class."""
+
+    def __init__(self, name: str) -> None:
         """
-        Minimal one-time initialisation. A good rule of thumb is
-        to only include the initialisation relevant for being able
-        to insert this behaviour in a tree for offline rendering to
-        dot graphs.
+        Minimal one-time initialisation.
+
+        A good rule of thumb is to only include the initialisation relevant
+        for being able to insert this behaviour in a tree for offline rendering to dot graphs.
 
         Other one-time initialisation requirements should be met via
         the setup() method.
         """
         super(Foo, self).__init__(name)
 
-    def setup(self):
+    def setup(self, **kwargs: typing.Any) -> None:
         """
+        Minimal setup implementation.
+
         When is this called?
           This function should be either manually called by your program
           to setup this behaviour alone, or more commonly, via
@@ -48,8 +55,10 @@ class Foo(py_trees.behaviour.Behaviour):
         """
         self.logger.debug("  %s [Foo::setup()]" % self.name)
 
-    def initialise(self):
+    def initialise(self) -> None:
         """
+        Minimal initialisation implementation.
+
         When is this called?
           The first time your behaviour is ticked and anytime the
           status is not RUNNING thereafter.
@@ -60,8 +69,10 @@ class Foo(py_trees.behaviour.Behaviour):
         """
         self.logger.debug("  %s [Foo::initialise()]" % self.name)
 
-    def update(self):
+    def update(self) -> py_trees.common.Status:
         """
+        Minimal update implementation.
+
         When is this called?
           Every time your behaviour is ticked.
 
@@ -82,11 +93,16 @@ class Foo(py_trees.behaviour.Behaviour):
             self.feedback_message = "Uh oh"
             return py_trees.common.Status.FAILURE
 
-    def terminate(self, new_status):
+    def terminate(self, new_status: py_trees.common.Status) -> None:
         """
+        Minimal termination implementation.
+
         When is this called?
            Whenever your behaviour switches to a non-running state.
             - SUCCESS || FAILURE : your behaviour's work cycle has finished
             - INVALID : a higher priority branch has interrupted, or shutting down
         """
-        self.logger.debug("  %s [Foo::terminate().terminate()][%s->%s]" % (self.name, self.status, new_status))
+        self.logger.debug(
+            "  %s [Foo::terminate().terminate()][%s->%s]"
+            % (self.name, self.status, new_status)
+        )

@@ -431,9 +431,9 @@ class EternalGuard(Decorator):
 
         # condition check
         result = self.condition()
-        if type(result) == common.Status:
+        if isinstance(result, common.Status):
             result = False if result == common.Status.FAILURE else True
-        elif type(result) != bool:
+        elif not isinstance(result, bool):
             error_message = (
                 "conditional check must return 'bool' or 'common.Status' [{}]".format(
                     type(result)
@@ -893,3 +893,30 @@ class Condition(Decorator):
         if self.decorated.status == self.succeed_status:
             return common.Status.SUCCESS
         return common.Status.RUNNING
+
+
+class PassThrough(Decorator):
+    """
+    This decorator simply reflects the child's current status.
+
+    This behaviour is useful for debugging or visualisation purposes.
+    """
+
+    def __init__(self, name: str, child: behaviour.Behaviour):
+        """
+        Initialise with the standard decorator arguments.
+
+        Args:
+            name: the decorator name
+            child: the child to be decorated
+        """
+        super(PassThrough, self).__init__(name=name, child=child)
+
+    def update(self) -> common.Status:
+        """
+        Just reflect the child status.
+
+        Returns:
+            the behaviour's new status :class:`~py_trees.common.Status`
+        """
+        return self.decorated.status
