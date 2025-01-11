@@ -17,13 +17,11 @@ import py_trees
 ##############################################################################
 
 
-def create_root() -> (
-    typing.Tuple[
-        py_trees.behaviour.Behaviour,
-        py_trees.behaviour.Behaviour,
-        py_trees.behaviour.Behaviour,
-    ]
-):
+def create_root() -> typing.Tuple[
+    py_trees.behaviour.Behaviour,
+    py_trees.behaviour.Behaviour,
+    py_trees.behaviour.Behaviour,
+]:
     trigger_one = py_trees.decorators.FailureIsRunning(
         name="FisR", child=py_trees.behaviours.SuccessEveryN(name="Joystick 1", n=4)
     )
@@ -112,7 +110,7 @@ def test_basic_workflow() -> None:
         result=task_one.status,
     )
     assert task_one.status == py_trees.common.Status.RUNNING
-    root.tick_once()
+    root.tick_once()  # type: ignore[unreachable]
     root.tick_once()
     py_trees.tests.print_assert_details(
         text="Tick 6 - task one finished",
