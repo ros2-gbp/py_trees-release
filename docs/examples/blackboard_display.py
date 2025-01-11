@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Example showing how to display a blackboard."""
 
 import py_trees
 
