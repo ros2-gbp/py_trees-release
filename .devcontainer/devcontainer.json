@@ -1,15 +1,14 @@
 {
-    "name": "py_trees-38",
+    "name": "py_trees-310",
 
     "build": {
         "dockerfile": "./Dockerfile",
         "args": {
-            "NAME": "py_trees",
-            "POETRY_VERSION": "1.3.2",
-            "PYTHON_VERSION": "3.8.16",
+            "NAME": "py_trees-310",
+            "POETRY_VERSION": "1.8.4",
+            "PYTHON_VERSION": "3.10.15",
             "DEBIAN_VERSION": "bullseye"
-        },
-        "context": ".."
+        }
     },
     "containerEnv": {
         "POETRY_HTTP_BASIC_PYPI_USERNAME": "${localEnv:POETRY_HTTP_BASIC_PYPI_USERNAME}",
@@ -29,7 +28,6 @@
         }
     },
     "postCreateCommand": "poetry install",
-    // Breaks codespaces
-    // "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind",
-    // "workspaceFolder": "/workspaces"
- }
+    "workspaceMount": "source=${localWorkspaceFolder}/../..,target=/workspaces,type=bind",
+    "workspaceFolder": "/workspaces"
+}
