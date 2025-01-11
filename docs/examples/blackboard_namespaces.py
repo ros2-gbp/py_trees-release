@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Example demonstrating the use of namespaces in a blackboard."""
 
 import py_trees
 
@@ -7,7 +8,9 @@ parameters = py_trees.blackboard.Client(name="Parameters", namespace="parameters
 
 blackboard.register_key(key="foo", access=py_trees.common.Access.WRITE)
 blackboard.register_key(key="/bar", access=py_trees.common.Access.WRITE)
-blackboard.register_key(key="/parameters/default_speed", access=py_trees.common.Access.WRITE)
+blackboard.register_key(
+    key="/parameters/default_speed", access=py_trees.common.Access.WRITE
+)
 parameters.register_key(key="aggressive_speed", access=py_trees.common.Access.WRITE)
 
 blackboard.foo = "foo"
