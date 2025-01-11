@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Example demonstrating basic read/write operations on the blackboard."""
 
 import py_trees
 
