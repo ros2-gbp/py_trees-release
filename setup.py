@@ -6,8 +6,6 @@
 # For all other modes of development, use poetry and pyproject.toml
 ################################################################################
 
-import os
-
 from setuptools import find_packages, setup
 
 install_requires = ["setuptools", "pydot"]
@@ -20,12 +18,12 @@ install_requires = ["setuptools", "pydot"]
 # Keep them in sync.
 d = setup(
     name="py_trees",
-    version="2.2.1",
+    version="2.3.0",
     packages=find_packages(exclude=["tests*", "docs*"]),
     package_data={"py_trees": ["py.typed"]},
     install_requires=install_requires,
     author="Daniel Stonier, Naveed Usmani, Michal Staniaszek",
-    maintainer="Daniel Stonier <d.stonier@gmail.com>",
+    maintainer="Daniel Stonier <d.stonier@gmail.com>, Sebastian Castro <sebas.a.castro@gmail.com>",
     url="https://github.com/splintered-reality/py_trees",
     keywords="behaviour-trees",
     zip_safe=True,
