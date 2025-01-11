@@ -1,3 +1,26 @@
+## py_trees (humble) - 2.3.0-1
+
+The packages in the `py_trees` repository were released into the `humble` distro by running `/usr/bin/bloom-release --edit --rosdistro humble py_trees` on `Sat, 11 Jan 2025 22:55:20 -0000`
+
+The `py_trees` package was released.
+
+Version of package(s) in repository `py_trees`:
+
+- upstream repository: https://github.com/splintered-reality/py_trees.git
+- release repository: https://github.com/ros2-gbp/py_trees-release.git
+- rosdistro version: `2.2.3-1`
+- old version: `2.2.3-2`
+- new version: `2.3.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.12.0`
+- catkin_pkg version: `1.0.0`
+- rosdep version: `0.25.1`
+- rosdistro version: `1.0.1`
+- vcstools version: `0.1.42`
+
+
 ## py_trees (humble) - 2.2.3-2
 
 The packages in the `py_trees` repository were released into the `humble` distro by running `/usr/bin/bloom-release --rosdistro humble py_trees` on `Sat, 11 Jan 2025 22:52:20 -0000`
