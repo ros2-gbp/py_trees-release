@@ -92,17 +92,17 @@ tracks:
       :{release_inc} --os-name fedora
     - git-bloom-generate -y rosrpm --prefix release/:{ros_distro} :{ros_distro} -i
       :{release_inc} --os-name rhel
-    devel_branch: devel
+    devel_branch: release/2.4.x
     last_version: 2.3.0
     name: py_trees
     patches: null
     release_inc: '2'
     release_repo_url: null
-    release_tag: 2.3.0
+    release_tag: 2.4.0
     ros_distro: kilted
     vcs_type: git
     vcs_uri: https://github.com/splintered-reality/py_trees.git
-    version: 2.3.0
+    version: 2.4.0
   rolling:
     actions:
     - bloom-export-upstream :{vcs_local_uri} :{vcs_type} --tag :{release_tag} --display-uri
