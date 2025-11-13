@@ -25,7 +25,7 @@ of these allowing a bend of purposeful planning towards goals with enough reacti
 to shift in the presence of important events. Some standout features:
 
 * **Ticking** - the ability to :term:`tick` allows for work between executions without multi-threading
-* **Priority Handling** - switching mechansims that allow higher priority interruptions is very natural
+* **Priority Handling** - switching mechanisms that allow higher priority interruptions is very natural
 * **Simplicity** - very few core components, making it easy for designers to work with it
 * **Scalable** - do not suffer from combinatorial explosion as nodes increase (as state machines do)
 * **Dynamic** - change the graph on the fly, between ticks or from parent behaviours themselves
@@ -45,7 +45,7 @@ Motivation
 
 The use case that drove the early development of py_trees was robotics. In particular, the higher level
 decision making for a single robot, i.e. the scenario / application layer. For example, the scenario
-that enables a robot to navigate through a building to deliver a parcel and return to it's
+that enables a robot to navigate through a building to deliver a parcel and return to its
 homebase safely.
 
 In scope was any decision making that did not need a low-latency response (e.g. reactive safety
