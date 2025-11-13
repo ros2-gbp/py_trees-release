@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "py_trees"
-version = "2.2.3"
+version = "2.4.0"
 description = "pythonic implementation of behaviour trees"
 authors = ["Daniel Stonier", "Naveed Usmani", "Michal Staniaszek"]
-maintainers = ["Daniel Stonier <d.stonier@gmail.com>"]
+maintainers = ["Daniel Stonier <d.stonier@gmail.com>", "Sebastian Castro <sebas.a.castro@gmail.com>"]
 readme = "README.md"
 license = "BSD"
 homepage = "https://github.com/splintered-reality/py_trees"
@@ -25,7 +25,6 @@ keywords=["py_trees", "py-trees", "behaviour-trees"]
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 pydot = ">=1.4"
-py = "^1.11.0"
 
 [tool.poetry.group.dev.dependencies]
 tox = ">=3.26"
