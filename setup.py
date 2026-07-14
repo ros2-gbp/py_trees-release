@@ -3,25 +3,27 @@
 ################################################################################
 # This is a minimal setup.py for enabling ROS builds.
 #
-# For all other modes of development, use poetry and pyproject.toml
+# For all other modes of development, use uv and pyproject.toml
 ################################################################################
 
 from setuptools import find_packages, setup
 
-install_requires = ["setuptools", "pydot"]
 
 # Some duplication of properties in:
 #  - setup.py,           (ros / legacy)
 #  - package.xml         (ros)
-#  - pyproject.toml      (poetry)
+#  - pyproject.toml      (uv)
 #  - py_trees/version.py (common)
 # Keep them in sync.
 d = setup(
     name="py_trees",
-    version="2.4.0",
+    version="2.5.0",
     packages=find_packages(exclude=["tests*", "docs*"]),
     package_data={"py_trees": ["py.typed"]},
-    install_requires=install_requires,
+    data_files=[
+        ("share/ament_index/resource_index/packages", ["resource/py_trees"]),
+        ("share/py_trees", ["package.xml"]),
+    ],
     author="Daniel Stonier, Naveed Usmani, Michal Staniaszek",
     maintainer="Daniel Stonier <d.stonier@gmail.com>, Sebastian Castro <sebas.a.castro@gmail.com>",
     url="https://github.com/splintered-reality/py_trees",
@@ -56,6 +58,10 @@ d = setup(
             "py-trees-demo-selector = py_trees.demos.selector:main",
             "py-trees-demo-sequence = py_trees.demos.sequence:main",
             "py-trees-demo-tree-stewardship = py_trees.demos.stewardship:main",
+            "py-trees-demo-ports-basic = py_trees.demos.ports.basic:main",
+            "py-trees-demo-ports-nested-subtrees = py_trees.demos.ports.nested_subtrees:main",
+            "py-trees-demo-ports-remapping = py_trees.demos.ports.remapping:main",
+            "py-trees-demo-ports-xml-tree = py_trees.demos.ports.xml_tree:main",
         ],
     },
 )
