@@ -23,7 +23,7 @@ Why use ports?
 Using ports instead of ad-hoc blackboard reads and writes pays off in several concrete ways:
 
 * **Explicit data contracts.**
-  A node's ``input_ports()`` and ``output_ports()`` declarations *are* its data-flow API.
+  A node's ``INPUT_PORTS`` and ``OUTPUT_PORTS`` declarations *are* its data-flow API.
   A reader can see at a glance what a node consumes and produces without reading through its :meth:`~py_trees.behaviour.Behaviour.update` method.
 
 * **Structured, early error detection.**
@@ -60,18 +60,13 @@ Concrete nodes typically inherit from the convenience base
    from py_trees.ports import BehaviourWithPorts, PortInformation
 
    class Multiply(BehaviourWithPorts):
-       @classmethod
-       def input_ports(cls):
-           return {
-               "a": PortInformation(data_type=float, required=True),
-               "b": PortInformation(data_type=float, required=True),
-           }
-
-       @classmethod
-       def output_ports(cls):
-           return {
-               "product": PortInformation(data_type=float, required=True),
-           }
+       INPUT_PORTS = {
+           "a": PortInformation(data_type=float, required=True),
+           "b": PortInformation(data_type=float, required=True),
+       }
+       OUTPUT_PORTS = {
+           "product": PortInformation(data_type=float, required=True),
+       }
 
        def update(self):
            self._set_output("product", self.get_input("a") * self.get_input("b"))
@@ -100,6 +95,50 @@ In the example above, another node's output ports would typically be remapped to
 .. note:: Why is ``setup_ports()`` a separate call?
     Because the remapping table usually cannot be computed until the entire tree topology is known — either the user assembles it by hand or a parser generates it from e.g. XML (more on that next).
     See :class:`py_trees.ports.PortsMixin` for the full contract and semantics.
+
+Default values
+~~~~~~~~~~~~~~
+
+A port can declare a ``default_value`` next to its type, so the fallback lives with the port declaration rather than being repeated at every call site:
+
+.. code-block:: python
+
+   INPUT_PORTS = {
+       "timeout": PortInformation(data_type=float, default_value=5.0),
+   }
+
+   def update(self):
+       timeout = self.get_input("timeout")   # 5.0 unless something wrote to the port
+
+The semantics are:
+
+* **Validated at declaration time.**
+  The default is type-checked against ``data_type`` when the :class:`~py_trees.ports.PortInformation` is constructed, so a mismatch raises ``TypeError`` where the port is declared instead of surfacing on a tick.
+
+* **Applied whenever no data is available.**
+  That covers both an unwired port and a port wired to a key nothing has written to yet.
+  Any actual data on the port wins over the default.
+
+* **They make a port satisfiable, including a required one.**
+  ``required=True`` together with a default reads as "this node always needs a value here, and here is the fallback"; such a port never raises :class:`~py_trees.ports.NoDataAvailable`.
+  It is also not registered as a *required* blackboard key, so :meth:`~py_trees.blackboard.Client.verify_required_keys_exist` does not trip over it.
+
+* **A call-site default still wins.**
+  ``get_input("timeout", default=1.0)`` overrides the declared default for that read.
+
+* **Input defaults are read-side only.**
+  They are never written to the blackboard, so wiring a defaulted input port to a shared key does not seed that key for other readers.
+  Container defaults (e.g., a list) are deep-copied on the way out, so a caller mutating the returned value cannot corrupt the declaration shared by every instance of the class.
+
+* **Output defaults are seeded onto the blackboard.**
+  An output port's default is written by ``setup_ports()``, so nodes wired to that port read a value before the producing node has ticked; whatever the node writes later replaces it.
+  Unlike input defaults, this does touch shared state — if two output ports are wired to the same key, the last one set up wins.
+
+* **Reset returns a port to its default.**
+  :meth:`~py_trees.ports.PortsMixin.reset_port` (and ``reset_all_output_ports()``) re-seeds an output port that declares a default instead of leaving it empty, so the guarantee that readers always see a value survives a "new data epoch".
+  Ports without a default are cleared as before.
+
+Note that ``default_value=None`` means "no default declared" — ``None`` is not supported as a port value in any case.
 
 .. _ports-xml-parser-label:
 
@@ -186,7 +225,7 @@ then resolves under the alias in the ``"auto"`` path:
 
 Pass ``register=False`` on a class definition to keep a particular subclass out of the
 registry. Still-abstract classes (e.g. :class:`~py_trees.ports.BehaviourWithPorts` itself,
-which does not implement ``input_ports`` / ``output_ports``) are never registered.
+which does not declare ``INPUT_PORTS`` / ``OUTPUT_PORTS``) are never registered.
 
 .. _ports-xml-attributes-label:
 
@@ -195,7 +234,7 @@ XML attributes: ports *and* constructor arguments
 
 Attributes on a node's XML tag serve **two** distinct purposes:
 
-1. Attribute names that match a declared port (``input_ports()`` or ``output_ports()``) are treated as **port remappings**.
+1. Attribute names that match a declared port (``INPUT_PORTS`` or ``OUTPUT_PORTS``) are treated as **port remappings**.
    Values may be ``{curly_key}`` references (wired to the remapping table) or literal constants (type-converted according to the port's declared type).
 
 2. Attribute names that do **not** match any declared port are treated as **constructor keyword arguments** and forwarded to the class constructor.
@@ -206,13 +245,8 @@ Example::
 
    class Greeting(BehaviourWithPorts):
 
-       @classmethod
-       def input_ports(cls):
-           return {"name_key": PortInformation(data_type=str, required=True)}
-
-       @classmethod
-       def output_ports(cls):
-           return {"greeting": PortInformation(data_type=str, required=True)}
+       INPUT_PORTS = {"name_key": PortInformation(data_type=str, required=True)}
+       OUTPUT_PORTS = {"greeting": PortInformation(data_type=str, required=True)}
 
        def __init__(self, name: str, prefix: str = "Hello", **kwargs):
            super().__init__(name=name, **kwargs)
@@ -226,6 +260,80 @@ Example::
 
    <Greeting name="hello_node" name_key="{target}" prefix="Howdy"/>
    <!--       ^^^ behaviour name   ^^^ port remap    ^^^ ctor kwarg  -->
+
+.. _ports-xml-default-inputs-label:
+
+Setting default inputs for subtrees
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A ``<BehaviorTree>`` definition can carry attributes of its own.
+Every attribute other than ``ID`` and ``name`` is a **default input** for that tree:
+a value used for the matching key whenever an instance of the tree does not supply one itself.
+This lets a reusable subtree ship with sensible values baked in, so callers only have to override what they actually care about.
+
+.. code-block:: xml
+
+   <root main_tree_to_execute="MainTree">
+     <BehaviorTree ID="Greeter" greeting="Hello" volume="5">
+       <Sequence>
+         <Speak name="Speak" text="{greeting}" volume="{volume}"/>
+       </Sequence>
+     </BehaviorTree>
+
+     <BehaviorTree ID="MainTree">
+       <Sequence>
+         <SubTree ID="Greeter" name="Default"/>                        <!-- "Hello", 5 -->
+         <SubTree ID="Greeter" name="Loud" volume="11"/>               <!-- "Hello", 11 -->
+         <SubTree ID="Greeter" name="Custom" greeting="Howdy"/>        <!-- "Howdy", 5  -->
+       </Sequence>
+     </BehaviorTree>
+   </root>
+
+Resolution is per key: an attribute on the ``<SubTree>`` element wins, and every key it leaves out
+falls back to the default on the ``<BehaviorTree>`` definition.
+Defaults are written exactly like any other XML attribute value.
+A literal constant is type-converted according to the declared port type
+(so ``volume="5"`` reaches an ``int`` port as ``5``), and a ``{curly_key}`` reference is wired through the remapping table as usual.
+Note that a ``{curly_key}`` default is resolved in the scope of whoever *instantiates* the subtree,
+not inside the subtree itself, so it behaves like a remapping the caller would have written by hand.
+Literal defaults are usually the clearer choice.
+
+Defaults for the top-level tree
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The same mechanism applies to the tree named by ``main_tree_to_execute``.
+Attributes on *its* ``<BehaviorTree>`` element are the defaults for the tree as a whole.
+Since there is no enclosing ``<SubTree>`` element to override them from, those defaults are overridden
+from Python instead, via the ``input_mappings`` argument of
+:func:`~py_trees.parsers.behaviour_tree_xml.parse_behaviour_tree_xml`:
+
+.. code-block:: xml
+
+   <root main_tree_to_execute="MainTree">
+     <BehaviorTree ID="MainTree" greeting="Hello">
+       <Sequence>
+         <Speak name="Speak" text="{greeting}" volume="{volume}"/>
+       </Sequence>
+     </BehaviorTree>
+   </root>
+
+.. code-block:: python
+
+   root = parse_behaviour_tree_xml(
+       "my_tree.xml",
+       input_mappings={"greeting": "Howdy", "volume": "11"},
+   )
+
+This makes the top-level tree parameterisable from the calling application without having to
+edit (or template) the XML for each run.
+
+A few rules to be aware of:
+
+* ``input_mappings`` values must be **strings**, matching how they would have been written as
+  XML attributes (pass ``"11"``, not ``11``). A non-string value raises ``ValueError`` at parse time.
+* ``input_mappings`` both overrides existing defaults and supplies keys the XML never defaulted at all (``volume`` in the example above).
+* A required input port left with neither a default nor a mapping is not an error at parse time.
+  It raises :class:`~py_trees.ports.NoDataAvailable` if and when the node first reads it during a tick.
 
 .. _ports-xml-includes-label:
 
@@ -336,13 +444,8 @@ A few things you should be aware of, and suggestions on how to fill the gaps you
       class Retry(PortsMixin, py_trees.decorators.Retry):
           """Retry that reads its failure budget from an input port."""
 
-          @classmethod
-          def input_ports(cls):
-              return {"num_failures": PortInformation(data_type=int, required=True)}
-
-          @classmethod
-          def output_ports(cls):
-              return {}
+          INPUT_PORTS = {"num_failures": PortInformation(data_type=int, required=True)}
+          OUTPUT_PORTS = {}
 
           def __init__(
               self,
